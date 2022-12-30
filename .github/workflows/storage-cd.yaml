@@ -10,7 +10,7 @@ env:
   PROJECT_ID: new-project-366703
   GAR_LOCATION: asia-south1
   REPOSITORY_NAME: github-artifact
-  IMAGE_NAME: backend
+  BUCKET_NAME: dev.pocketalktest.ml
   REGION: asia-south1
   SERVICE: github
 
@@ -39,4 +39,8 @@ jobs:
       - name: 'Use gcloud CLI'
         run: 'gcloud info'
       - name: Delet files from bucket
-        run: gsutil rm gs://abc.pocketalktest.ml/**
+        run: gsutil rm gs://${BUCKET_NAME}/**
+      - name: Upload Build File
+        run: gsutil cp -r *.html gs://${BUCKET_NAME}
+
+
