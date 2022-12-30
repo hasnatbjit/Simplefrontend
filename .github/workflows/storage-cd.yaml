@@ -41,6 +41,6 @@ jobs:
       - name: Delet files from bucket
         run: gsutil rm gs://${BUCKET_NAME}/**
       - name: Upload Build File
-        run: gsutil cp -r *.html gs://${BUCKET_NAME}
+        run: gsutil cp -r *.* gs://${BUCKET_NAME}
 
 
