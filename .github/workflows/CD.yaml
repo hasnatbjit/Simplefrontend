@@ -54,22 +54,26 @@ jobs:
       - name: Install package Build
         run: |-
           npm run build
+          # /home/runner/work/Simplefrontend/Simplefrontend
           pwd
           ls -la
 
-      # - name: Google Auth
-      #   id: auth
-      #   uses: 'google-github-actions/auth@v0'
-      #   with:
-      #     token_format: 'access_token'
-      #     workload_identity_provider: projects/331230062057/locations/global/workloadIdentityPools/frontend-identity-pool/providers/frontend-identity-provider
-      #     service_account:  frontend-build-deploy-sa@new-project-366703.iam.gserviceaccount.com
+      - name: Google Auth
+        id: auth
+        uses: 'google-github-actions/auth@v0'
+        with:
+          token_format: 'access_token'
+          workload_identity_provider: projects/331230062057/locations/global/workloadIdentityPools/frontend-identity-pool/providers/frontend-identity-provider
+          service_account:  frontend-build-deploy-sa@new-project-366703.iam.gserviceaccount.com
 
-      # - name: 'Set up Cloud SDK'
-      #   uses: 'google-github-actions/setup-gcloud@v1'
+      - name: 'Set up Cloud SDK'
+        uses: 'google-github-actions/setup-gcloud@v1'
 
-      # - name: 'Use gcloud CLI'
-      #   run: 'gcloud info'
+      - name: 'Use gcloud CLI'
+        run: 'gcloud info'
 
-      # - name: Delet files from bucket
-      #   run: if [[ $(gsutil du gs://${BUCKET_NAME} | wc -l) -gt 0 ]]; then gsutil -m rm -rf gs://${BUCKET_NAME}/*; fi
+      - name: Delete files from bucket
+        run: if [[ $(gsutil du gs://${BUCKET_NAME} | wc -l) -gt 0 ]]; then gsutil -m rm -rf gs://${BUCKET_NAME}/*; fi
+
+      - name: Upload build files into bucket
+        run: gsutil -m cp -r build gs:/${BUCKET_NAME}
