@@ -49,6 +49,9 @@ jobs:
       - name: Delete build file
         run: if [ -d build ]; then rm -rf build; fi
 
+      - name: check file
+        run: |-
+          cat src/App.js
       - name: Install package Build
         run: npm run build
 
