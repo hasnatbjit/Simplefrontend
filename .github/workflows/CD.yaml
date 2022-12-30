@@ -49,11 +49,7 @@ jobs:
         run: npm install
 
       - name: Install package Build
-        run: |-
-          npm run build
-          # /home/runner/work/Simplefrontend/Simplefrontend
-          pwd
-          ls -la
+        run: npm run build
 
       - name: Google Auth
         id: auth
@@ -61,7 +57,7 @@ jobs:
         with:
           token_format: 'access_token'
           workload_identity_provider: projects/331230062057/locations/global/workloadIdentityPools/frontend-identity-pool/providers/frontend-identity-provider
-          service_account:  ${SA}@${PROJECT_ID}.iam.gserviceaccount.com
+          service_account: frontend-build-deploy-sa@$new-project-366703.iam.gserviceaccount.com
 
       - name: 'Set up Cloud SDK'
         uses: 'google-github-actions/setup-gcloud@v1'
