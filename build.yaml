@@ -1,0 +1,98 @@
+name: Build and Deploy to Cloud Run
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+env:
+  PROJECT_ID: new-project-366703
+  GAR_LOCATION: asia-south1
+  REPOSITORY_NAME: github-artifact
+  BUCKET_NAME: dev.pocketalktest.ml
+  REGION: asia-south1
+
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v2
+      - name: Use Node.js 12.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12.x
+      - name: Install dependencies
+        run: npm install
+      - name: Test
+        run: npm test
+        env:
+          CI: true
+      - name: Generate build
+        run: npm run build
+      # Share artifact inside workflow
+      - name: Share artifact inside workflow
+        uses: actions/upload-artifact@v1
+        with:
+          name: react-github-actions-build
+          path: build
+  deploy:
+    runs-on: ubuntu-latest
+    # When application is successfully tested and build has been generated
+    # Then we can start with deployment
+    needs: build
+    steps:
+      # Download previously shared build
+      - name: Get artifact
+        uses: actions/download-artifact@v1
+        with:
+          name: react-github-actions-build
+      # Set the credentials from repository settings/secrets
+      - name: Google Auth
+        id: auth
+        uses: 'google-github-actions/auth@v0'
+        with:
+          token_format: 'access_token'
+          workload_identity_provider: projects/331230062057/locations/global/workloadIdentityPools/frontend-identity-pool/providers/frontend-identity-provider
+          service_account:  frontend-build-deploy-sa@new-project-366703.iam.gserviceaccount.com
+      - name: 'Set up Cloud SDK'
+        uses: 'google-github-actions/setup-gcloud@v1'
+      - name: 'Use gcloud CLI'
+        run: 'gcloud info'
+      - name: Delet Objexts from bucket
+        run: if [[ $(gsutil du gs://${BUCKET_NAME} | wc -l) -gt 0 ]]; then gsutil -m rm -rf gs://${BUCKET_NAME}/*; fi
+      # Copy the files from build folder to the Cloud Storage bucket
+      - name: Deploy to Cloud Storage
+        run: gsutil -m cp -r . gs://${BUCKET_NAME}
+        working-directory: react-github-actions-build
+
+  # release:
+  #   runs-on: ubuntu-latest
+  #   # We specify that deploys needs to
+  #   # finish before we create a release
+  #   needs: deploy
+  #   steps:
+  #     # Download previously shared build
+  #     - name: Get artifact
+  #       uses: actions/download-artifact@v1
+  #       with:
+  #         name: react-github-actions-build
+  #     # Zip the build using external action
+  #     - name: Zip build
+  #       uses: thedoctor0/zip-release@master
+  #       with:
+  #         filename: react-github-actions-release-build.zip
+  #         path: react-github-actions-build
+  #     # Upload as an artifact of the current workflow
+  #     - name: Upload build zip artifact
+  #       uses: actions/upload-artifact@v1
+  #       with:
+  #         name: react-github-actions-release-build.zip
+  #         path: react-github-actions-release-build.zip
+  #     # Make official GitHub release which will trigger
+  #     # sending the mail with link for access
+  #     - name: Release
+  #       uses: ncipollo/release-action@v1
+  #       with:
+  #         artifacts: react-github-actions-release-build.zip
+  #         body: https://react-github-actions.s3.amazonaws.com/index.html
+  #         token: ${{ secrets.GITHUB_TOKEN }}
