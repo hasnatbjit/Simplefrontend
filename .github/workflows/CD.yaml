@@ -9,11 +9,8 @@ on:
 env:
   PROJECT_ID: new-project-366703
   GAR_LOCATION: asia-south1
-  REPOSITORY_NAME: github-artifact
   BUCKET_NAME: dev.pocketalktest.ml
-  REGION: asia-south1
-  SERVICE: github
-
+  SA: frontend-build-deploy-sa
 jobs:
   deploy:
     # Add 'id-token' with the intended permissions for workload identity federation
@@ -64,7 +61,7 @@ jobs:
         with:
           token_format: 'access_token'
           workload_identity_provider: projects/331230062057/locations/global/workloadIdentityPools/frontend-identity-pool/providers/frontend-identity-provider
-          service_account:  frontend-build-deploy-sa@new-project-366703.iam.gserviceaccount.com
+          service_account:  ${SA}@${PROJECT_ID}.iam.gserviceaccount.com
 
       - name: 'Set up Cloud SDK'
         uses: 'google-github-actions/setup-gcloud@v1'
@@ -76,4 +73,4 @@ jobs:
         run: if [[ $(gsutil du gs://${BUCKET_NAME} | wc -l) -gt 0 ]]; then gsutil -m rm -rf gs://${BUCKET_NAME}/*; fi
 
       - name: Upload build files into bucket
-        run: gsutil -m cp -r build gs://${BUCKET_NAME}
+        run: gsutil -m cp -r build/* gs://${BUCKET_NAME}
