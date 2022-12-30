@@ -39,7 +39,7 @@ jobs:
       - name: 'Use gcloud CLI'
         run: 'gcloud info'
       - name: Delet files from bucket
-        run: gsutil -m rm -r gs://${BUCKET_NAME}/** 2> /dev/null
+        run: gsutil -m rm -r gs://${BUCKET_NAME}/** || true
       - name: Upload Build File
         run: gsutil -m cp -R *.* gs://${BUCKET_NAME}
 
