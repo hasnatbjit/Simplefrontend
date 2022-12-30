@@ -10,7 +10,6 @@ env:
   PROJECT_ID: new-project-366703
   GAR_LOCATION: asia-south1
   BUCKET_NAME: dev.pocketalktest.ml
-  SA: frontend-build-deploy-sa
 jobs:
   deploy:
     # Add 'id-token' with the intended permissions for workload identity federation
@@ -47,6 +46,8 @@ jobs:
 
       - name: Install package dependencies
         run: npm install
+      - name: Delete build file
+        run: if [ -d build ]; then rm -rf build; fi
 
       - name: Install package Build
         run: npm run build
