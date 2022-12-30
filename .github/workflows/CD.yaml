@@ -76,4 +76,4 @@ jobs:
         run: if [[ $(gsutil du gs://${BUCKET_NAME} | wc -l) -gt 0 ]]; then gsutil -m rm -rf gs://${BUCKET_NAME}/*; fi
 
       - name: Upload build files into bucket
-        run: gsutil -m cp -r build gs:/${BUCKET_NAME}
+        run: gsutil -m cp -r build gs://${BUCKET_NAME}
